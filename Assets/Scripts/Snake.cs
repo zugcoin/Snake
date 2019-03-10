@@ -10,22 +10,26 @@ public class BodyParts
     public int nextMvt;
 }
 
-public class Snake : MonoBehaviour {
+public class Snake : MonoBehaviour
+{
     public Transform prefabBody, prefabTail;
     List<BodyParts> listParts = new List<BodyParts>();
-
+    float speed = 0.1f;
     int typeMvt = 0;
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         InitTrail();
 
     }
 
-    void InitBody() {
+    void InitBody()
+    {
 
     }
 
-    void InitTrail() {
+    void InitTrail()
+    {
         Vector3 tailPos = transform.position - transform.forward * (listParts.Count + 1);
         Transform trans = Instantiate(prefabTail, tailPos, Quaternion.identity);
         BodyParts bodyPart = new BodyParts();
@@ -39,15 +43,18 @@ public class Snake : MonoBehaviour {
 
     }
 
-	// Update is called once per frame
-	void Update () {
+    // Update is called once per frame
+    void Update()
+    {
         //turn left
-        if (Input.GetKeyDown(KeyCode.Q)) {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
             typeMvt = -1;
         }
 
         //Turn right
-        if (Input.GetKeyDown(KeyCode.W)) {
+        if (Input.GetKeyDown(KeyCode.W))
+        {
             typeMvt = 1;
         }
         Movement();
@@ -56,7 +63,13 @@ public class Snake : MonoBehaviour {
     void Movement()
     {
         //Snake movement
-        transform.position = transform.position + transform.forward * 0.1f;
+        transform.position = transform.position + transform.forward * speed;
+
+        //Snake body and tail movement
+        for (int i = 0; i < listParts.Count; i++)
+        {
+            listParts[i].trans.position = listParts[i].trans.position + listParts[i].trans.forward * speed;
+        }
 
         //Player wants to rotate the Snake
         if (typeMvt != 0)
