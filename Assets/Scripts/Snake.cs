@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ChildrenMvt
 {
@@ -17,16 +18,19 @@ public class BodyParts
 public class Snake : MonoBehaviour
 {
     public Transform prefabBody, prefabTail;
+    public Text txtScore;
+
     List<BodyParts> listParts = new List<BodyParts>();
     float speed = 0.1f;
     int typeMvt = 0;
+    int score,oldScore;
 
     // Use this for initialization
     void Start()
     {
         InitTrail();
         for(int i=0;i<3;i++)
-            CreateBody(false);
+            CreateBody();
     }
 
     void InitBody()
@@ -44,18 +48,12 @@ public class Snake : MonoBehaviour
         listParts.Add(bodyPart);
     }
 
-    void CreateBody(bool debug)
+    void CreateBody()
     {
         Vector3 bodyPos = listParts[listParts.Count - 1].trans.position - listParts[listParts.Count - 1].trans.forward;
         Transform trans = Instantiate(prefabBody, bodyPos, listParts[listParts.Count - 1].trans.rotation);
         trans.rotation = listParts[listParts.Count - 1].trans.rotation;
-        if (debug)
-        {
-            for (int i = 0; i < listParts.Count; i++)
-            {
-                Debug.Log("" + listParts[i].trans.rotation.eulerAngles.y);
-            }
-        }
+
         BodyParts bodyPart = new BodyParts();
         trans.name = "body" + (listParts.Count);
         bodyPart.trans = trans;
@@ -168,8 +166,10 @@ public class Snake : MonoBehaviour
 
             //Debug.Log("Food");
             //Destroy(other.gameObject);
+            score += listParts.Count - 1;
             other.transform.position = new Vector3(Random.Range(-40, 40), 0, Random.Range(-40, 40));
-            CreateBody(true);
+            CreateBody();
+            txtScore.text = "SCORE : " + score;
         }
         else
         {
