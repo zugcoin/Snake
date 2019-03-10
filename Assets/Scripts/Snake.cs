@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class ChildrenMvt
+{
+    public Vector3 nextPos;
+    public int nextMvt;
+}
 
 public class BodyParts
 {
     public Transform trans;
-    public Vector3 nextPos;
-    public int nextMvt;
+    public List<ChildrenMvt> listMvt = new List<ChildrenMvt>();
 }
 
 public class Snake : MonoBehaviour
@@ -20,7 +24,6 @@ public class Snake : MonoBehaviour
     void Start()
     {
         InitTrail();
-
     }
 
     void InitBody()
@@ -60,6 +63,21 @@ public class Snake : MonoBehaviour
         Movement();
     }
 
+    void RotateChildrens(int _typeMvt)
+    {
+        //For each body and taill, add next rotation and position
+        for (int i = 0; i < listParts.Count; i++)
+        {
+            ChildrenMvt childMvt = new ChildrenMvt();
+            childMvt.nextMvt = _typeMvt;
+            childMvt.nextPos = transform.position;
+            listParts[i].listMvt.Add(childMvt);
+        }
+    }
+
+
+    float distance;
+
     void Movement()
     {
         //Snake movement
@@ -74,7 +92,6 @@ public class Snake : MonoBehaviour
         //Player wants to rotate the Snake
         if (typeMvt != 0)
         {
-
             //Only rotate every unit
             if (System.Math.Round(transform.position.z, 2) % 1 == 0 && System.Math.Round(transform.position.x, 2) % 1 == 0)
             {
@@ -83,27 +100,49 @@ public class Snake : MonoBehaviour
                     switch (typeMvt)
                     {
                         case -1:
-                            transform.RotateAround(transform.position, Vector3.up, -90);
+                            transform.RotateAround(transform.position, Vector3.up, -90); RotateChildrens(typeMvt);
                             break;
                         case 1:
-                            transform.RotateAround(transform.position, Vector3.up, 90);
+                            transform.RotateAround(transform.position, Vector3.up, 90); RotateChildrens(typeMvt);
                             break;
                     }
                     typeMvt = 0;
                 }
             }
         }
+
+
+        for (int i = 0; i < listParts.Count; i++)
+        {
+            //Detect if tail or body need to be rotated
+            if (listParts[i].listMvt.Count > 0)
+            {
+                distance = Vector3.Distance(listParts[i].trans.position, listParts[i].listMvt[0].nextPos);
+                //If the body or trail reach the target position
+                if (distance <= 0.01f)
+                {
+                    switch (listParts[i].listMvt[0].nextMvt)
+                    {
+                        case -1: listParts[i].trans.RotateAround(listParts[i].trans.position, Vector3.up, -90); break;
+                        case 1: listParts[i].trans.RotateAround(listParts[i].trans.position, Vector3.up, 90); break;
+                    }
+                    //listParts[i].nextMvt = 0;
+                }
+            }
+        }
+
     }
-
-
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.name.Equals("Food"))
         {
-
+            Debug.Log("Food");
         }
-        Debug.Log("Collider:" + other.name + " " + transform.name);
+        else
+        {
+            //Debug.Log("Collider:" + other.name + " " + transform.name);
+        }
     }
 
 }
