@@ -19,18 +19,18 @@ public class BodyParts
 public class Snake : MonoBehaviour
 {
     public Transform prefabBody, prefabTail;
-    public Text txtScore;
+    public Text txtScore, txtCountdown;
 
     List<BodyParts> listParts = new List<BodyParts>();
     float speed = 0.1f;
     int typeMvt = 0;
     int score;
+    float countdown = 3.4f;
 
     // Use this for initialization
     void Start()
     {
         GameObject.Find("Food").transform.position = new Vector3(Random.Range(-40, 40), 0, Random.Range(-40, 40));
-
         InitTrail();
         InitBody();
     }
@@ -78,18 +78,34 @@ public class Snake : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //turn left
-        if (Input.GetKeyDown(KeyCode.Q))
+        //Move only if countdown ended
+        if (countdown < 0)
         {
-            typeMvt = -1;
-        }
+            //turn left
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                typeMvt = -1;
+            }
 
-        //Turn right
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            typeMvt = 1;
+            //Turn right
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                typeMvt = 1;
+            }
+            Movement();
         }
-        Movement();
+        else
+        {
+            countdown -= Time.deltaTime;
+            //Countdown value for 3,2,1
+            if (countdown > 0.5f)
+                txtCountdown.text = "" + Mathf.RoundToInt(countdown);
+            else
+            {
+                txtCountdown.text = "GO";
+                StartCoroutine(RoutineCloseCountdown());
+            }
+        }
     }
 
     void RotateChildrens(int _typeMvt)
@@ -156,6 +172,7 @@ public class Snake : MonoBehaviour
                     {
                         case -1: listParts[i].trans.RotateAround(listParts[i].trans.position, Vector3.up, -90); break;
                         case 1: listParts[i].trans.RotateAround(listParts[i].trans.position, Vector3.up, 90); break;
+                        case 2: listParts[i].trans.RotateAround(listParts[i].trans.position, Vector3.up, 180); break;
                     }
                     //Remove the first movement in the list
                     listParts[i].listMvt.RemoveAt(0);
@@ -177,6 +194,10 @@ public class Snake : MonoBehaviour
             //Update the score
             txtScore.text = "SCORE : " + score;
         }
+        else if (other.name.Equals("border"))
+        {
+            transform.RotateAround(transform.position, Vector3.up, 180); RotateChildrens(2);
+        }
         else if (!other.name.Equals("body1"))
         {
             Debug.Log("Collider:" + other.name + " " + transform.name);
@@ -187,6 +208,12 @@ public class Snake : MonoBehaviour
     void Restart()
     {
         SceneManager.LoadScene(0);
+    }
+
+    IEnumerator RoutineCloseCountdown()
+    {
+        yield return new WaitForSeconds(0.3f);
+        txtCountdown.text = "";
     }
 
 }
