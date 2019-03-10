@@ -112,7 +112,7 @@ public class Snake : MonoBehaviour
         }
 
 
-        for (int i = 0; i < listParts.Count; i++)
+        for (int i = listParts.Count-1; i > -1; i--)
         {
             //Detect if tail or body need to be rotated
             if (listParts[i].listMvt.Count > 0)
@@ -126,7 +126,7 @@ public class Snake : MonoBehaviour
                         case -1: listParts[i].trans.RotateAround(listParts[i].trans.position, Vector3.up, -90); break;
                         case 1: listParts[i].trans.RotateAround(listParts[i].trans.position, Vector3.up, 90); break;
                     }
-                    //listParts[i].nextMvt = 0;
+                    listParts[i].listMvt.RemoveAt(0);
                 }
             }
         }
