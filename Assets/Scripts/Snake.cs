@@ -39,4 +39,16 @@ public class Snake : MonoBehaviour {
         //Snake movement
         transform.position = transform.position + transform.forward * 0.1f;
     }
+
+
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.name.Equals("Food"))
+        {
+
+        }
+        Debug.Log("Collider:" + other.name + " " + transform.name);
+    }
+
 }
