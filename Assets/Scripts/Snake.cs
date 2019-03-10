@@ -20,11 +20,13 @@ public class Snake : MonoBehaviour
     List<BodyParts> listParts = new List<BodyParts>();
     float speed = 0.1f;
     int typeMvt = 0;
+
     // Use this for initialization
     void Start()
     {
         InitTrail();
-        CreateBody();
+        for(int i=0;i<3;i++)
+            CreateBody(false);
     }
 
     void InitBody()
@@ -42,14 +44,33 @@ public class Snake : MonoBehaviour
         listParts.Add(bodyPart);
     }
 
-    void CreateBody()
+    void CreateBody(bool debug)
     {
         Vector3 bodyPos = listParts[listParts.Count - 1].trans.position - listParts[listParts.Count - 1].trans.forward;
         Transform trans = Instantiate(prefabBody, bodyPos, listParts[listParts.Count - 1].trans.rotation);
+        trans.rotation = listParts[listParts.Count - 1].trans.rotation;
+        if (debug)
+        {
+            for (int i = 0; i < listParts.Count; i++)
+            {
+                Debug.Log("" + listParts[i].trans.rotation.eulerAngles.y);
+            }
+        }
         BodyParts bodyPart = new BodyParts();
         trans.name = "body" + (listParts.Count);
         bodyPart.trans = trans;
+
+        if (listParts[listParts.Count - 1].listMvt.Count > 0)
+        {
+            ChildrenMvt childMvt = new ChildrenMvt();
+            childMvt.nextMvt = listParts[listParts.Count - 1].listMvt[0].nextMvt;
+            childMvt.nextPos = listParts[listParts.Count - 1].listMvt[0].nextPos;
+            bodyPart.listMvt.Add(childMvt);
+        }
         listParts.Add(bodyPart);
+
+
+        //Vector3 
     }
 
     // Update is called once per frame
@@ -86,6 +107,8 @@ public class Snake : MonoBehaviour
 
     void Movement()
     {
+
+
         //Snake movement
         transform.position = transform.position + transform.forward * speed;
 
@@ -136,14 +159,17 @@ public class Snake : MonoBehaviour
                 }
             }
         }
-
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.name.Equals("Food"))
         {
-            Debug.Log("Food");
+
+            //Debug.Log("Food");
+            //Destroy(other.gameObject);
+            other.transform.position = new Vector3(Random.Range(-40, 40), 0, Random.Range(-40, 40));
+            CreateBody(true);
         }
         else
         {
