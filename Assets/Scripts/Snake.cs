@@ -2,18 +2,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public class BodyParts
+{
+    public Transform trans;
+    public Vector3 nextPos;
+    public int nextMvt;
+}
+
 public class Snake : MonoBehaviour {
-    public Transform prefabBody;
+    public Transform prefabBody, prefabTail;
+    List<BodyParts> listParts = new List<BodyParts>();
 
     int typeMvt = 0;
 	// Use this for initialization
 	void Start () {
-		
-	}
+        InitTrail();
 
-    void InitBody() { }
+    }
 
-    void InitTrail() { }
+    void InitBody() {
+
+    }
+
+    void InitTrail() {
+        Vector3 tailPos = transform.position - transform.forward * (listParts.Count + 1);
+        Transform trans = Instantiate(prefabTail, tailPos, Quaternion.identity);
+        BodyParts bodyPart = new BodyParts();
+        trans.name = "tail";
+        bodyPart.trans = trans;
+        listParts.Add(bodyPart);
+    }
 
     void CreateBody()
     {
