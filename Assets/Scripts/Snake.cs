@@ -24,6 +24,7 @@ public class Snake : MonoBehaviour
     void Start()
     {
         InitTrail();
+        CreateBody();
     }
 
     void InitBody()
@@ -43,7 +44,12 @@ public class Snake : MonoBehaviour
 
     void CreateBody()
     {
-
+        Vector3 bodyPos = listParts[listParts.Count - 1].trans.position - listParts[listParts.Count - 1].trans.forward;
+        Transform trans = Instantiate(prefabBody, bodyPos, listParts[listParts.Count - 1].trans.rotation);
+        BodyParts bodyPart = new BodyParts();
+        trans.name = "body" + (listParts.Count);
+        bodyPart.trans = trans;
+        listParts.Add(bodyPart);
     }
 
     // Update is called once per frame
