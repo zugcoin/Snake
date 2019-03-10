@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class ChildrenMvt
 {
@@ -23,19 +24,21 @@ public class Snake : MonoBehaviour
     List<BodyParts> listParts = new List<BodyParts>();
     float speed = 0.1f;
     int typeMvt = 0;
-    int score,oldScore;
+    int score;
 
     // Use this for initialization
     void Start()
     {
+        GameObject.Find("Food").transform.position = new Vector3(Random.Range(-40, 40), 0, Random.Range(-40, 40));
+
         InitTrail();
-        for(int i=0;i<3;i++)
-            CreateBody();
+        InitBody();
     }
 
     void InitBody()
     {
-
+        for (int i = 0; i < 3; i++)
+            CreateBody();
     }
 
     void InitTrail()
@@ -50,22 +53,23 @@ public class Snake : MonoBehaviour
 
     void CreateBody()
     {
-        Vector3 bodyPos = listParts[listParts.Count - 1].trans.position - listParts[listParts.Count - 1].trans.forward;
-        Transform trans = Instantiate(prefabBody, bodyPos, listParts[listParts.Count - 1].trans.rotation);
-        trans.rotation = listParts[listParts.Count - 1].trans.rotation;
+        Vector3 bodyPos = listParts[0].trans.position;
+        Transform trans = Instantiate(prefabBody, bodyPos, listParts[0].trans.rotation);
+        trans.rotation = listParts[0].trans.rotation;
 
         BodyParts bodyPart = new BodyParts();
         trans.name = "body" + (listParts.Count);
         bodyPart.trans = trans;
 
-        if (listParts[listParts.Count - 1].listMvt.Count > 0)
+        if (listParts[0].listMvt.Count > 0)
         {
             ChildrenMvt childMvt = new ChildrenMvt();
-            childMvt.nextMvt = listParts[listParts.Count - 1].listMvt[0].nextMvt;
-            childMvt.nextPos = listParts[listParts.Count - 1].listMvt[0].nextPos;
+            childMvt.nextMvt = listParts[0].listMvt[0].nextMvt;
+            childMvt.nextPos = listParts[0].listMvt[0].nextPos;
             bodyPart.listMvt.Add(childMvt);
         }
         listParts.Add(bodyPart);
+        listParts[0].trans.position = listParts[0].trans.position - listParts[0].trans.forward;
 
 
         //Vector3 
@@ -139,7 +143,7 @@ public class Snake : MonoBehaviour
         }
 
 
-        for (int i = listParts.Count-1; i > -1; i--)
+        for (int i = listParts.Count - 1; i > -1; i--)
         {
             //Detect if tail or body need to be rotated
             if (listParts[i].listMvt.Count > 0)
@@ -153,6 +157,7 @@ public class Snake : MonoBehaviour
                         case -1: listParts[i].trans.RotateAround(listParts[i].trans.position, Vector3.up, -90); break;
                         case 1: listParts[i].trans.RotateAround(listParts[i].trans.position, Vector3.up, 90); break;
                     }
+                    //Remove the first movement in the list
                     listParts[i].listMvt.RemoveAt(0);
                 }
             }
@@ -161,20 +166,27 @@ public class Snake : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        //If the head collide with a Food
         if (other.name.Equals("Food"))
         {
-
-            //Debug.Log("Food");
-            //Destroy(other.gameObject);
             score += listParts.Count - 1;
+            //Move the Food to a random place
             other.transform.position = new Vector3(Random.Range(-40, 40), 0, Random.Range(-40, 40));
+            //Increase the snake size
             CreateBody();
+            //Update the score
             txtScore.text = "SCORE : " + score;
         }
-        else
+        else if (!other.name.Equals("body1"))
         {
-            //Debug.Log("Collider:" + other.name + " " + transform.name);
+            Debug.Log("Collider:" + other.name + " " + transform.name);
+            Restart();
         }
+    }
+
+    void Restart()
+    {
+        SceneManager.LoadScene(0);
     }
 
 }
